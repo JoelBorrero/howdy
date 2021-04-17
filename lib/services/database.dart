@@ -14,6 +14,15 @@ class DatabaseService {
         .setData({'name': name, 'username': username}, merge: true);
   }
 
+  //POST
+  Future addNewPost(String footer) async {
+    return await usersCollection
+        .document(uid)
+        .collection('posts')
+        .document()
+        .setData({'footer': footer});
+  }
+
   //PersonalInfo from snapshot
   PersonalInfo _personalInfoFromSnapshot(DocumentSnapshot snapshot) {
     return PersonalInfo(

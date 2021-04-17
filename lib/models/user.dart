@@ -1,6 +1,6 @@
 class User {
-  final String uid, displayName;
-  User({this.uid, this.displayName});
+  final String uid;
+  User({this.uid});
 }
 
 class PersonalInfo {
