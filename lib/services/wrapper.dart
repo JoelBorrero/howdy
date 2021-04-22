@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:howdy/models/user.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:howdy/screens/user_pages/home.dart';
 import 'package:howdy/screens/authentication/authentication.dart';
 
-User user;
-
 class Wrapper extends StatelessWidget {
+  const Wrapper({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    user = Provider.of<User>(context);
-    return user == null ? Authentication() : Home();
+    return StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Home();
+          } else {
+            return Authentication();
+          }
+        });
   }
 }

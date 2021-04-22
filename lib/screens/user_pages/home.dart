@@ -1,40 +1,16 @@
-import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:howdy/models/user.dart';
 import 'package:howdy/services/auth.dart';
 import 'package:howdy/services/database.dart';
-import 'package:howdy/services/wrapper.dart';
-import 'package:howdy/shared/constants.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:howdy/widgets/constants.dart';
+import 'package:howdy/widgets/post_feed.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:provider/provider.dart';
 
-import 'widgets.dart';
-
-PersonalInfo _userInfo = PersonalInfo(name: 'Name', username: 'Username');
 PageController _mainController = PageController();
 TextEditingController _footerController = TextEditingController();
 int _page = 1;
-DatabaseService _db = DatabaseService(uid: user.uid);
-
-_loadInfo() async {
-  _userInfo = await _db.personalInfo.first;
-}
-Future _setImage(ImageSource source) async {
-      final image = await ImagePicker().getImage(source: source);
-      if (image != null) {
-        StorageReference storageReference =
-            FirebaseStorage.instance.ref().child('users/${user.uid}/profilePic.jpeg');
-        StorageUploadTask uploadTask =
-            storageReference.putFile(File(image.path));
-        await uploadTask.onComplete;
-        Firestore.instance.collection('userData').document(user.uid).setData({
-          'profilePicUrl': (await storageReference.getDownloadURL()).toString()
-        }, merge: true);
-      }
-    }
+// DatabaseService _db = DatabaseService(uid: user.uid);
 
 class Home extends StatefulWidget {
   @override
@@ -45,7 +21,6 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    _loadInfo();
   }
 
   @override
@@ -56,7 +31,9 @@ class _HomeState extends State<Home> {
           physics: NeverScrollableScrollPhysics(),
           controller: _mainController,
           children: [
-            Text('Search'),
+            TextButton(
+                child: Text('Search'),
+                onPressed: null), //() => print(Provider.of<User>(context))),
             ListView.builder(
                 itemCount: 6,
                 itemBuilder: (BuildContext context, int index) {
@@ -66,8 +43,8 @@ class _HomeState extends State<Home> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(_userInfo.name, style: TextStyle(fontSize: 20)),
-                  Text('${_userInfo.username}\n\n' ?? 'Usuario',
+                  Text('_userInfo.name', style: TextStyle(fontSize: 20)),
+                  Text('{_userInfo.username}\n\n' ?? 'Usuario',
                       style: TextStyle(fontSize: 20)),
                   Container(
                       width: MediaQuery.of(context).size.width,
@@ -109,6 +86,7 @@ class _HomeState extends State<Home> {
                 showModalBottomSheet(
                     context: context,
                     builder: (_) => Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Text(
@@ -117,10 +95,17 @@ class _HomeState extends State<Home> {
                                     color: Theme.of(context).primaryColor,
                                     fontSize: 20),
                               ),
-                              IconButton(
-                                  icon: Icon(Icons.image), onPressed: () =>_setImage(ImageSource.gallery)),
-                              IconButton(
-                                  icon: Icon(Icons.camera), onPressed: () =>_setImage(ImageSource.camera)),
+                              Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    IconButton(
+                                        icon: Icon(Icons.image),
+                                        onPressed: null),
+                                    IconButton(
+                                        icon: Icon(Icons.camera),
+                                        onPressed: null)
+                                  ]),
                               TextField(
                                   controller: _footerController,
                                   decoration: textInputDecoration.copyWith(
@@ -128,7 +113,7 @@ class _HomeState extends State<Home> {
                               ElevatedButton(
                                   child: Text('Publicar'),
                                   onPressed: () {
-                                    _db.addNewPost(_footerController.text);
+                                    // _db.addNewPost(_footerController.text);
                                   })
                             ]));
               })

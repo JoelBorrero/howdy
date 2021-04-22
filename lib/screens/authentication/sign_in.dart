@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:howdy/shared/loading.dart';
+import 'package:howdy/widgets/loading.dart';
 
-import '../../shared/constants.dart';
+import '../../widgets/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:howdy/services/auth.dart';
 

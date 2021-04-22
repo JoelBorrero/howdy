@@ -1,4 +1,3 @@
-import 'package:howdy/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DatabaseService {
@@ -6,36 +5,33 @@ class DatabaseService {
   DatabaseService({this.uid});
   //Collection reference
   final CollectionReference usersCollection =
-      Firestore.instance.collection('users');
+      FirebaseFirestore.instance.collection('users');
 
-  Future updateUserData(String name, String username) async {
-    return await usersCollection
-        .document(uid)
-        .setData({'name': name, 'username': username}, merge: true);
+  Future createUser(String name, String username, List location) async {
+    return await usersCollection.doc(uid).set(
+      {
+        'name': name,
+        'username': username,
+        'biography': 'Hola! Soy nuevo en Howdy',
+        'friends': [],
+        'interest': [],
+        'location': GeoPoint(location[0], location[1]),
+        'phoneNumber': '',
+        'posts': [],
+        'preferences': [],
+        'private': false,
+        'profilePicUrl': '',
+        uid: uid,
+      },
+    );
   }
 
   //POST
   Future addNewPost(String footer) async {
     return await usersCollection
-        .document(uid)
+        .doc(uid)
         .collection('posts')
-        .document()
-        .setData({'footer': footer});
-  }
-
-  //PersonalInfo from snapshot
-  PersonalInfo _personalInfoFromSnapshot(DocumentSnapshot snapshot) {
-    return PersonalInfo(
-        uid: uid,
-        name: snapshot.data['name'],
-        username: snapshot.data['username']);
-  }
-
-  //Get user doc stream
-  Stream<PersonalInfo> get personalInfo {
-    return usersCollection
-        .document(uid)
-        .snapshots()
-        .map(_personalInfoFromSnapshot);
+        .doc()
+        .set({'footer': footer});
   }
 }
