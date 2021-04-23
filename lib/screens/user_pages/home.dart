@@ -6,6 +6,7 @@ import 'package:howdy/widgets/constants.dart';
 import 'package:howdy/widgets/post_feed.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:howdy/screens/user_pages/user_detail_new.dart';
 
 PageController _mainController = PageController();
 TextEditingController _footerController = TextEditingController();
