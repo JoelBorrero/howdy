@@ -20,7 +20,7 @@ class _PostState extends State<Post> {
     setState(() {});
   }
 
-  void showProfile(BuildContext context, String uid) {
+  void _showProfile(BuildContext context, String uid) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => UserDetailView(author: _author)),
@@ -61,7 +61,7 @@ class _PostState extends State<Post> {
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       onPressed: () =>
-                          showProfile(context, widget.data['author'])),
+                          _showProfile(context, widget.data['author'])),
                   Text("@${_author?.username}"),
                 ],
               ),
