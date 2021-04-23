@@ -1,22 +1,27 @@
-//tendra el UI del post
-//info basica del propietario del post
-//Post como tal
-//Acciones y descripcion del post (like, comments)
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'dart:math';
+import 'package:howdy/models/user_info.dart';
+import 'package:howdy/services/database.dart';
 
-//! Esto se tiene que mandar por algun lado!!!
-//Definir lista aqui con los datos obtenidos de tabla: Post
-List<String> items = ["Jhon", "Keneth", "Joel", "Andres"];
-List<String> username = ["jhonW1", "kenethL2", "joelB3", "andresC4"];
-String description =
-    "Este es el primer y unico post de User jeje. Solo para variar algo de contenido y no mostrar informacion generica en la interfaz. Tambien puedes ingresar a detalles del post dando tap al username o photo :D";
+class Post extends StatefulWidget {
+  final DocumentSnapshot data;
+  Post({this.data});
 
-//////////////////////////////////////////////
-class Post extends StatelessWidget {
+  @override
+  _PostState createState() => _PostState();
+}
+
+class _PostState extends State<Post> {
+  UserInfo _author;
+
+  void _loadAuthor() async {
+    _author = await DatabaseService().getUserInfo(widget.data['author']);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
-    int rand = Random().nextInt(4);
+    if (_author == null) _loadAuthor();
     return Column(
       children: <Widget>[
         //Row para info basica del user
@@ -42,12 +47,11 @@ class Post extends StatelessWidget {
               Column(
                 children: <Widget>[
                   Text(
-                    "${items[rand]}",
+                    "${_author?.name}",
                     textAlign: TextAlign.left,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  Text(
-                      "@${username[rand]}"), //? tal bez cambiar por distancia jeje
+                  Text("@${_author?.username}"),
                 ],
               ),
               //Spacer
@@ -127,10 +131,10 @@ class Post extends StatelessWidget {
               style: DefaultTextStyle.of(context).style,
               children: <TextSpan>[
                 TextSpan(
-                  text: "@${username[rand]} ",
+                  text: "@${_author?.username} ",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                TextSpan(text: "$description"),
+                TextSpan(text: widget.data['footer']),
               ],
             ),
           ),

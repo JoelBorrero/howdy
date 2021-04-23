@@ -30,7 +30,7 @@ class AuthService {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       return await DatabaseService(uid: result.user.uid)
-          .createUser(name, username, [0,0]);
+          .createUser(name, username, phone, [0.0, 0.0]);
     } catch (e) {
       return null;
     }

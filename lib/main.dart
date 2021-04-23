@@ -1,8 +1,5 @@
-import 'models/user.dart';
-import 'services/auth.dart';
 import 'services/wrapper.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'widgets/loading.dart';
@@ -38,7 +35,6 @@ class MyApp extends StatelessWidget {
               if (snapshot.connectionState == ConnectionState.done) {
                 return Wrapper();
               }
-
               return Loading();
             }),
         debugShowCheckedModeBanner: false);

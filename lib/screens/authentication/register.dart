@@ -11,8 +11,11 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
   AuthService _auth = AuthService();
-  String _name = '', _email = '', _username = '', _password = '';
-  TextEditingController _phoneController = TextEditingController();
+  TextEditingController _emailController = TextEditingController(),
+      _nameController = TextEditingController(),
+      _passwordController = TextEditingController(),
+      _phoneController = TextEditingController(),
+      _usernameController = TextEditingController();
   bool _loading = false;
   final _formKey = GlobalKey<FormState>();
   @override
@@ -23,82 +26,75 @@ class _RegisterState extends State<Register> {
             key: _formKey,
             child: Scaffold(
               appBar: AppBar(title: Text('Crear cuenta'), centerTitle: true),
-              body: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 50),
-                    child: TextFormField(
-                        keyboardType: TextInputType.name,
+              body: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 50),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    TextFormField(
+                        controller: _nameController,
                         decoration: textInputDecoration.copyWith(
                             labelText: 'Nombre completo*',
                             icon: Icon(Icons.person_outline)),
+                        keyboardType: TextInputType.name,
                         validator: (val) =>
-                            val.isEmpty ? 'Ingrese su nombre' : null,
-                        onChanged: (val) {
-                          setState(() => _name = val);
-                        }),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 50),
-                    child: TextFormField(
-                        keyboardType: TextInputType.text,
+                            val.isEmpty ? 'Ingrese su nombre' : null),
+                    TextFormField(
+                        controller: _usernameController,
                         decoration: textInputDecoration.copyWith(
                             labelText: 'Nombre de usuario*',
                             icon: Icon(Icons.person)),
-                        validator: (val) =>
-                            val.isEmpty ? 'Ingrese su nombre de usuario' : null,
-                        onChanged: (val) {
-                          setState(() => _username = val);
-                        }),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 50),
-                    child: TextFormField(
                         keyboardType: TextInputType.text,
-                        obscureText: true,
+                        validator: (val) => val.isEmpty
+                            ? 'Ingrese su nombre de usuario'
+                            : null),
+                    TextFormField(
+                        controller: _emailController,
+                        decoration: textInputDecoration.copyWith(
+                            labelText: 'Correo electrónico',
+                            icon: Icon(Icons.email_outlined)),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (val) =>
+                            !RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                    .hasMatch(val)
+                                ? 'Verifique su correo electrónico'
+                                : null),
+                    TextFormField(
+                        controller: _passwordController,
                         decoration: textInputDecoration.copyWith(
                             labelText: 'Contraseña',
                             icon: Icon(Icons.visibility_off)),
+                        keyboardType: TextInputType.text,
+                        obscureText: true,
                         validator: (val) => val.length < 8
                             ? 'Debe tener mínimo 8 caracteres'
-                            : null,
-                        onChanged: (val) {
-                          setState(() => _password = val);
-                        }),
-                  ),
-                  Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 50),
-                      child: TextFormField(
-                        keyboardType: TextInputType.phone,
+                            : null),
+                    TextFormField(
+                        controller: _phoneController,
                         decoration: textInputDecoration.copyWith(
                             labelText: 'Teléfono', icon: Icon(Icons.phone)),
-                        controller: _phoneController,
-                      )),
-                  ElevatedButton(
-                      child: Text('Crear cuenta'),
-                      onPressed: () async {
-                        if (_formKey.currentState.validate()) {
-                          setState(() => _loading = true);
-                          dynamic result = await _auth.registerEmail(
-                              _email,
-                              _password,
-                              _name,
-                              _username,
-                              _phoneController.text);
-                          if (result == null) {
-                            setState(() {
-                              _loading = false;
-                            });
+                        keyboardType: TextInputType.phone),
+                    ElevatedButton(
+                        child: Text('Crear cuenta'),
+                        onPressed: () async {
+                          if (_formKey.currentState.validate()) {
+                            setState(() => _loading = true);
+                            await _auth.registerEmail(
+                                _emailController.text,
+                                _passwordController.text,
+                                _nameController.text,
+                                _usernameController.text,
+                                _phoneController.text);
+                            _loading = false;
                           }
-                        }
-                      }),
-                  Text('¿Ya tienes una cuenta?'),
-                  TextButton(
-                      onPressed: () => goToPage(1, horizontal: false),
-                      child: Text('Inicia sesión'))
-                ],
+                        }),
+                    Text('¿Ya tienes una cuenta?'),
+                    TextButton(
+                        onPressed: () => goToPage(1, horizontal: false),
+                        child: Text('Inicia sesión'))
+                  ],
+                ),
               ),
             ),
           );
