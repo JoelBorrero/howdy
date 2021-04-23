@@ -6,6 +6,7 @@ import 'package:howdy/services/database.dart';
 import 'package:howdy/widgets/constants.dart';
 import 'package:howdy/widgets/post_feed.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:howdy/widgets/user_card.dart';
 
 PageController _pageController = PageController(initialPage: 1);
 TextEditingController _footerController = TextEditingController();
@@ -36,11 +37,7 @@ class _HomeState extends State<Home> {
         body: PageView(
             physics: NeverScrollableScrollPhysics(),
             controller: _pageController,
-            children: [
-              TextButton(child: Text('Search'), onPressed: () {}),
-              _postList(),
-              _userProfile(context)
-            ]),
+            children: [_search(), _postList(), _userProfile(context)]),
         bottomNavigationBar: CurvedNavigationBar(
           index: 1,
           color: Theme.of(context).primaryColor,
@@ -67,12 +64,22 @@ class _HomeState extends State<Home> {
   }
 }
 
+Widget _search() {
+  return StreamBuilder(
+      stream: _db.usersCollection.snapshots(),
+      builder: (context, snapshot) {
+        return snapshot.hasData
+            ? _listOfUsers(context, snapshot.data.docs)
+            : Text('Cargando...');
+      });
+}
+
 Widget _postList() {
   return StreamBuilder(
       stream: _db.postsCollection.snapshots(),
       builder: (context, snapshot) {
         return snapshot.hasData
-            ? _list(context, snapshot.data.docs)
+            ? _listOfPosts(context, snapshot.data.docs)
             : Text('Cargando...');
       });
 }
@@ -98,8 +105,13 @@ Widget _userProfile(BuildContext context) {
       ]);
 }
 
-Widget _list(BuildContext context, List<DocumentSnapshot> snapshot) {
+Widget _listOfPosts(BuildContext context, List<DocumentSnapshot> snapshot) {
   return ListView(children: snapshot.map((data) => Post(data: data)).toList());
+}
+
+Widget _listOfUsers(BuildContext context, List<DocumentSnapshot> snapshot) {
+  return ListView(
+      children: snapshot.map((data) => UserCard(data: data)).toList());
 }
 
 FloatingActionButton _newPostButton(BuildContext context) =>

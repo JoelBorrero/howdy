@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:howdy/models/user_info.dart';
+import 'package:howdy/screens/user_detail_new.dart';
 import 'package:howdy/services/database.dart';
 
 class Post extends StatefulWidget {
@@ -12,11 +13,18 @@ class Post extends StatefulWidget {
 }
 
 class _PostState extends State<Post> {
-  UserInfo _author;
+  PersonalInfo _author;
 
   void _loadAuthor() async {
-    _author = await DatabaseService().getUserInfo(widget.data['author']);
+    _author = await DatabaseService().getPersonalInfo(widget.data['author']);
     setState(() {});
+  }
+
+  void showProfile(BuildContext context, String uid) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => UserDetailView(author: _author)),
+    );
   }
 
   @override
@@ -46,11 +54,14 @@ class _PostState extends State<Post> {
               //Column con User Name & @username
               Column(
                 children: <Widget>[
-                  Text(
-                    "${_author?.name}",
-                    textAlign: TextAlign.left,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  TextButton(
+                      child: Text(
+                        "${_author?.name}",
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: () =>
+                          showProfile(context, widget.data['author'])),
                   Text("@${_author?.username}"),
                 ],
               ),

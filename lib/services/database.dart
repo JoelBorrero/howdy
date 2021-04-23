@@ -33,7 +33,7 @@ class DatabaseService {
     return await postsCollection.doc().set({'author': uid, 'footer': footer});
   }
 
-  Future<UserInfo> getUserInfo(String id) async {
-    return UserInfo.fromSnapshot(await usersCollection.doc(id).get());
+  Future<PersonalInfo> getPersonalInfo(String id) async {
+    return PersonalInfo.fromSnapshot(await usersCollection.doc(id).get());
   }
 }

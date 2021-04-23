@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class UserInfo {
+class PersonalInfo {
   final String name, username, biography, profilePicUrl, phoneNumber, email;
   final bool private;
   final List interest, posts, friends, preferences;
   final GeoPoint location;
   final DocumentReference reference;
   //  assert(map['name']!=null);
-  UserInfo.fromMap(Map<String, dynamic> map, {this.reference})
+  PersonalInfo.fromMap(Map<String, dynamic> map, {this.reference})
       : name = map['name'],
         username = map['username'],
         biography = map['biography'],
@@ -20,6 +20,6 @@ class UserInfo {
         friends = map['friends'],
         preferences = map['preferences'],
         location = map['location'];
-  UserInfo.fromSnapshot(DocumentSnapshot snapshot)
+  PersonalInfo.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data(), reference: snapshot.reference);
 }
