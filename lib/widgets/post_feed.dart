@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:howdy/models/user_info.dart';
-import 'package:howdy/screens/user_detail_new.dart';
+import 'package:howdy/screens/user_pages/user_profile.dart';
 import 'package:howdy/services/database.dart';
 
 class Post extends StatefulWidget {
@@ -23,7 +23,8 @@ class _PostState extends State<Post> {
   void _showProfile(BuildContext context, String uid) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => UserDetailView(author: _author)),
+      MaterialPageRoute(
+          builder: (context) => UserDetailView(profileOwner: _author)),
     );
   }
 
@@ -89,12 +90,12 @@ class _PostState extends State<Post> {
             left: 16,
           ),
           child: ClipRRect(
-            //height: 100,
-            //width: MediaQuery.of(context).size.width,
-            borderRadius: BorderRadius.circular(16),
-            child: Image.network(
-                "https://cdn.noticiasenlamira.com/2021/04/Save-Ralph.jpg"),
-          ),
+              //height: 100,
+              //width: MediaQuery.of(context).size.width,
+              borderRadius: BorderRadius.circular(16),
+              child: widget.data['images'] == null
+                  ? Text('Nulo')
+                  : Image.network(widget.data['images'][0])),
         ),
 
         //SizedBox(height: 10,),

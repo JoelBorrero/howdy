@@ -1,22 +1,25 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
+import 'package:howdy/shared/functions.dart';
+
+import 'user_profile.dart';
 import 'package:flutter/material.dart';
-import 'package:howdy/services/auth.dart';
+import 'package:howdy/widgets/loading.dart';
+import 'package:howdy/models/user_info.dart';
 import 'package:howdy/services/database.dart';
 import 'package:howdy/widgets/constants.dart';
 import 'package:howdy/widgets/post_feed.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:howdy/widgets/user_card.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-PageController _pageController = PageController(initialPage: 1);
 TextEditingController _footerController = TextEditingController();
-User _user = FirebaseAuth.instance.currentUser;
-DatabaseService _db = DatabaseService(uid: _user.uid);
-int _page = 0;
+PersonalInfo _user;
+User _fbUser = FirebaseAuth.instance.currentUser;
+DatabaseService _db = DatabaseService(uid: _fbUser.uid);
 
-void _goToPage(int i) {
-  _pageController.animateToPage(i,
-      duration: Duration(milliseconds: 800), curve: Curves.fastOutSlowIn);
+void _load() async {
+  _user = await DatabaseService().getPersonalInfo(_fbUser.uid);
 }
 
 class Home extends StatefulWidget {
@@ -28,49 +31,96 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    _load();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Howdy'), centerTitle: true),
-        body: PageView(
-            physics: NeverScrollableScrollPhysics(),
-            controller: _pageController,
-            children: [_search(), _postList(), _userProfile(context)]),
-        bottomNavigationBar: CurvedNavigationBar(
-          index: 1,
-          color: Theme.of(context).primaryColor,
-          backgroundColor: Colors.transparent,
-          // backgroundColor: Theme.of(context).canvasColor,
-          height: 50,
-          items: [
-            Icon(Icons.search, color: Colors.white),
-            Icon(Icons.home, color: Colors.white),
-            Icon(Icons.person, color: Colors.white)
-          ],
-          onTap: (i) {
-            setState(() {
-              _page = i;
-              _goToPage(i);
-            });
-          },
-        ),
-        extendBody: true,
-        floatingActionButton: _page == 1 //
-            ? _newPostButton(context)
-            : null,
-        resizeToAvoidBottomInset: false);
+        appBar: AppBar(
+            actions: [
+              IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => _search())))
+            ],
+            backgroundColor: Colors.white,
+            centerTitle: true,
+            iconTheme: IconThemeData(color: Colors.black),
+            title: Text('Howdy',
+                style: TextStyle(color: Theme.of(context).accentColor))),
+        body: _postList(),
+        drawer: _drawer(context),
+        floatingActionButton: _newPostButton(context));
   }
+}
+
+Widget _drawer(BuildContext context) {
+  return Drawer(
+      child: Column(children: [
+    UserAccountsDrawerHeader(
+        currentAccountPicture: CircleAvatar(
+          child: Text('J'),
+        ),
+        accountName: Text('${_user?.name}'),
+        accountEmail: Text('@${_user?.username}')),
+    ListTile(
+      leading: Icon(Icons.people_alt_outlined, color: Colors.grey),
+      title: Text('Crear grupo'),
+      onTap: () {
+        Navigator.pop(context);
+      },
+    ),
+    ListTile(
+      leading: Icon(Icons.person_outline, color: Colors.grey),
+      title: Text('Amigos y grupos'),
+      onTap: () {},
+    ),
+    ListTile(
+      leading: Icon(Icons.message_outlined, color: Colors.grey),
+      title: Text('Chats directos'),
+      onTap: () {},
+    ),
+    ListTile(
+      leading: Icon(Icons.search, color: Colors.grey),
+      title: Text('Descubrir'),
+      onTap: () {},
+    ),
+    ListTile(
+      leading: Icon(Icons.edit_outlined, color: Colors.grey),
+      title: Text('Editar perfil'),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => UserDetailView(profileOwner: _user)));
+      },
+    ),
+    ListTile(
+      leading: Icon(Icons.settings_outlined, color: Colors.grey),
+      title: Text('Configuración'),
+      onTap: () {},
+    ),
+  ]));
 }
 
 Widget _search() {
   return StreamBuilder(
       stream: _db.usersCollection.snapshots(),
       builder: (context, snapshot) {
-        return snapshot.hasData
-            ? _listOfUsers(context, snapshot.data.docs)
-            : Text('Cargando...');
+        return Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              title: Text(
+                'Descubrir',
+                style: TextStyle(color: Colors.black),
+              ),
+              iconTheme: IconThemeData(color: Colors.black),
+            ),
+            body: snapshot.hasData
+                ? _usersList(context, snapshot.data.docs)
+                : Center(child: Text('Cargando...')));
       });
 }
 
@@ -78,83 +128,69 @@ Widget _postList() {
   return StreamBuilder(
       stream: _db.postsCollection.snapshots(),
       builder: (context, snapshot) {
+        print(snapshot.data.docs.length);
         return snapshot.hasData
-            ? _listOfPosts(context, snapshot.data.docs)
-            : Text('Cargando...');
+            ? snapshot.data.docs.length > 0
+                ? _postsList(context, snapshot.data.docs)
+                : Center(
+                    child: Text(
+                        'Todo está tranquilo por aquí\n\n¿Qué tal si posteamos algo?'))
+            : Loading();
       });
 }
 
-Widget _userProfile(BuildContext context) {
-  return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text('${_user.displayName}', style: TextStyle(fontSize: 20)),
-        Text('${_user.email}\n\n', style: TextStyle(fontSize: 20)),
-        Container(
-            width: MediaQuery.of(context).size.width,
-            child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 50),
-                child: ElevatedButton.icon(
-                    onPressed: () => AuthService().signOut(),
-                    label: Text('\nCerrar sesión\n'),
-                    icon: Icon(Icons.logout),
-                    style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(50))))))
-      ]);
-}
-
-Widget _listOfPosts(BuildContext context, List<DocumentSnapshot> snapshot) {
+Widget _postsList(BuildContext context, List<DocumentSnapshot> snapshot) {
   return ListView(children: snapshot.map((data) => Post(data: data)).toList());
 }
 
-Widget _listOfUsers(BuildContext context, List<DocumentSnapshot> snapshot) {
+Widget _usersList(BuildContext context, List<DocumentSnapshot> snapshot) {
   return ListView(
       children: snapshot.map((data) => UserCard(data: data)).toList());
 }
 
-FloatingActionButton _newPostButton(BuildContext context) =>
-    FloatingActionButton(
-        child: Icon(Icons.post_add),
-        onPressed: () {
-          showModalBottomSheet(
-              shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.only(topRight: Radius.circular(50))),
-              context: context,
-              builder: (_) => SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 50),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+FloatingActionButton _newPostButton(BuildContext context) {
+  List<File> _images = [];
+  return FloatingActionButton(
+      child: Icon(Icons.post_add),
+      onPressed: () => showModalBottomSheet(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(topRight: Radius.circular(50))),
+          context: context,
+          builder: (_) => SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text('Nuevo post\n\n',
+                        style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold)),
+                    Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text(
-                            'Nuevo post\n\n',
-                            style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                IconButton(
-                                    icon: Icon(Icons.image), onPressed: null),
-                                IconButton(
-                                    icon: Icon(Icons.camera), onPressed: null)
-                              ]),
-                          TextField(
-                              controller: _footerController,
-                              decoration: textInputDecoration.copyWith(
-                                  labelText: 'Añade un pie de foto')),
-                          ElevatedButton(
-                              child: Text('Publicar'),
+                          IconButton(
+                              icon: Icon(Icons.image),
                               onPressed: () {
-                                _db.addNewPost(_footerController.text);
-                                Navigator.pop(context);
-                                _footerController.clear();
-                              })
+                                chooseImage(ImageSource.gallery,
+                                    images: _images);
+                              }),
+                          IconButton(
+                              icon: Icon(Icons.camera),
+                              onPressed: () => chooseImage(ImageSource.camera,
+                                  images: _images)),
                         ]),
-                  ));
-        });
+                    TextField(
+                        controller: _footerController,
+                        decoration: textInputDecoration.copyWith(
+                            labelText: 'Añade un pie de foto')),
+                    ElevatedButton(
+                        child: Text('Publicar'),
+                        onPressed: () {
+                          _db.addNewPost(_images, _footerController.text);
+                          Navigator.pop(context);
+                          _footerController.clear();
+                        })
+                  ]))));
+}

@@ -14,29 +14,48 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Howdy',
-        theme: ThemeData(
-            primaryColor: Colors.deepPurple, primarySwatch: Colors.purple),
-        home: FutureBuilder(
-            future: _initialization,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Scaffold(
-                  body: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(Icons.error_outline, size: 50),
-                      Text('\nOops, lo sentimos\n\nParece que hubo un error')
-                    ],
-                  ),
-                );
-              }
-              if (snapshot.connectionState == ConnectionState.done) {
-                return Wrapper();
-              }
-              return Loading();
-            }),
-        debugShowCheckedModeBanner: false);
+      darkTheme: _darkTheme(),
+      debugShowCheckedModeBanner: false,
+      home: _home(),
+      title: 'Howdy',
+      theme: _normalTheme(),
+    );
   }
+
+  Widget _home() => FutureBuilder(
+      future: _initialization,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Scaffold(
+              body: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                Icon(Icons.error_outline, size: 50),
+                Text('\nOops, lo sentimos\n\nParece que hubo un error')
+              ]));
+        }
+        if (snapshot.connectionState == ConnectionState.done) {
+          return Wrapper();
+        }
+        return Loading();
+      });
 }
+
+ThemeData _darkTheme() => ThemeData(
+    accentColor: Colors.deepPurple,
+    cardColor: Colors.deepPurple,
+    primaryColor: Colors.deepPurple,
+    canvasColor: Colors.black54,
+    textTheme: TextTheme(
+        button: TextStyle(color: Colors.amber),
+        bodyText1: TextStyle(color: Colors.white60),
+        bodyText2: TextStyle(color: Colors.white70)),
+    primarySwatch: Colors.purple,
+    scaffoldBackgroundColor: Colors.black87);
+
+ThemeData _normalTheme() => ThemeData(
+    accentColor: Color(0xff9097fd),
+    cardColor: Color(0xff9097fd),
+    primaryColor: Colors.deepPurple,
+    primarySwatch: Colors.purple);

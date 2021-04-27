@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:howdy/models/user_info.dart';
-import 'package:howdy/screens/user_detail_new.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:howdy/screens/user_pages/user_profile.dart';
 
 class UserCard extends StatefulWidget {
   final DocumentSnapshot data;
@@ -22,8 +22,9 @@ class _UserCardState extends State<UserCard> {
                   shape: BoxShape.circle,
                   image: DecorationImage(
                       fit: BoxFit.fill,
-                      image: NetworkImage(
-                          "https://cdn140.picsart.com/315324509038201.jpg?type=webp&to=min&r=640")))),
+                      image: NetworkImage(widget.data['profilePic'] != ''
+                          ? widget.data['profilePic']
+                          : "https://cdn140.picsart.com/315324509038201.jpg?type=webp&to=min&r=640")))),
           title: Text(widget.data['name']),
           subtitle: Text('@${widget.data['username']}'),
           trailing: Icon(Icons.person_add),
@@ -31,7 +32,7 @@ class _UserCardState extends State<UserCard> {
               context,
               MaterialPageRoute(
                   builder: (context) => UserDetailView(
-                      author: PersonalInfo.fromSnapshot(widget.data)))))
+                      profileOwner: PersonalInfo.fromSnapshot(widget.data)))))
     ]);
   }
 }
