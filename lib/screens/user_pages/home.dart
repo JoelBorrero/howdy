@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:howdy/screens/user_pages/new_post.dart';
+import 'package:howdy/services/auth.dart';
 import 'package:howdy/shared/functions.dart';
 
 import 'user_profile.dart';
@@ -13,12 +15,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-TextEditingController _footerController = TextEditingController();
 PersonalInfo _user;
 User _fbUser = FirebaseAuth.instance.currentUser;
-DatabaseService _db = DatabaseService(uid: _fbUser.uid);
+DatabaseService db = DatabaseService(uid: _fbUser.uid);
+AuthService _auth = AuthService();
 
 void _load() async {
+  _fbUser = FirebaseAuth.instance.currentUser;
   _user = await DatabaseService().getPersonalInfo(_fbUser.uid);
 }
 
@@ -51,7 +54,10 @@ class _HomeState extends State<Home> {
                 style: TextStyle(color: Theme.of(context).accentColor))),
         body: _postList(),
         drawer: _drawer(context),
-        floatingActionButton: _newPostButton(context));
+        floatingActionButton: FloatingActionButton(
+            child: Icon(Icons.post_add),
+            onPressed: () => Navigator.push(
+                context, MaterialPageRoute(builder: (context) => NewPost()))));
   }
 }
 
@@ -60,7 +66,16 @@ Widget _drawer(BuildContext context) {
       child: Column(children: [
     UserAccountsDrawerHeader(
         currentAccountPicture: CircleAvatar(
-          child: Text('J'),
+          child: _user?.profilePic == ''
+              ? Text(_user.name.substring(0, 1))
+              : Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                          fit: BoxFit.fill,
+                          image: NetworkImage(_user?.profilePic)))),
         ),
         accountName: Text('${_user?.name}'),
         accountEmail: Text('@${_user?.username}')),
@@ -102,12 +117,17 @@ Widget _drawer(BuildContext context) {
       title: Text('Configuración'),
       onTap: () {},
     ),
+    ListTile(
+      leading: Icon(Icons.logout, color: Colors.grey),
+      title: Text('Cerrar sesión'),
+      onTap: () => _auth.signOut(),
+    ),
   ]));
 }
 
 Widget _search() {
   return StreamBuilder(
-      stream: _db.usersCollection.snapshots(),
+      stream: db.usersCollection.snapshots(),
       builder: (context, snapshot) {
         return Scaffold(
             appBar: AppBar(
@@ -126,7 +146,7 @@ Widget _search() {
 
 Widget _postList() {
   return StreamBuilder(
-      stream: _db.postsCollection.snapshots(),
+      stream: db.postsCollection.snapshots(),
       builder: (context, snapshot) {
         print(snapshot.data.docs.length);
         return snapshot.hasData
@@ -146,51 +166,4 @@ Widget _postsList(BuildContext context, List<DocumentSnapshot> snapshot) {
 Widget _usersList(BuildContext context, List<DocumentSnapshot> snapshot) {
   return ListView(
       children: snapshot.map((data) => UserCard(data: data)).toList());
-}
-
-FloatingActionButton _newPostButton(BuildContext context) {
-  List<File> _images = [];
-  return FloatingActionButton(
-      child: Icon(Icons.post_add),
-      onPressed: () => showModalBottomSheet(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(topRight: Radius.circular(50))),
-          context: context,
-          builder: (_) => SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 50),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text('Nuevo post\n\n',
-                        style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold)),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          IconButton(
-                              icon: Icon(Icons.image),
-                              onPressed: () {
-                                chooseImage(ImageSource.gallery,
-                                    images: _images);
-                              }),
-                          IconButton(
-                              icon: Icon(Icons.camera),
-                              onPressed: () => chooseImage(ImageSource.camera,
-                                  images: _images)),
-                        ]),
-                    TextField(
-                        controller: _footerController,
-                        decoration: textInputDecoration.copyWith(
-                            labelText: 'Añade un pie de foto')),
-                    ElevatedButton(
-                        child: Text('Publicar'),
-                        onPressed: () {
-                          _db.addNewPost(_images, _footerController.text);
-                          Navigator.pop(context);
-                          _footerController.clear();
-                        })
-                  ]))));
 }

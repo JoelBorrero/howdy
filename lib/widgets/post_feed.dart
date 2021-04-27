@@ -14,6 +14,8 @@ class Post extends StatefulWidget {
 
 class _PostState extends State<Post> {
   PersonalInfo _author;
+  List _images;
+  int _page = 1;
 
   void _loadAuthor() async {
     _author = await DatabaseService().getPersonalInfo(widget.data['author']);
@@ -30,6 +32,7 @@ class _PostState extends State<Post> {
 
   @override
   Widget build(BuildContext context) {
+    _images = widget.data['images'];
     if (_author == null) _loadAuthor();
     return Column(
       children: <Widget>[
@@ -47,8 +50,9 @@ class _PostState extends State<Post> {
                   shape: BoxShape.circle,
                   image: DecorationImage(
                     fit: BoxFit.fill,
-                    image: NetworkImage(
-                        "https://cdn140.picsart.com/315324509038201.jpg?type=webp&to=min&r=640"),
+                    image: NetworkImage(_author.profilePic == ''
+                        ? "https://cdn140.picsart.com/315324509038201.jpg?type=webp&to=min&r=640"
+                        : _author.profilePic),
                   ),
                 ),
               ),
@@ -85,18 +89,48 @@ class _PostState extends State<Post> {
         ),
         //Widget para foto
         Padding(
-          padding: EdgeInsets.only(
-            right: 16,
-            left: 16,
-          ),
-          child: ClipRRect(
-              //height: 100,
-              //width: MediaQuery.of(context).size.width,
-              borderRadius: BorderRadius.circular(16),
-              child: widget.data['images'] == null
-                  ? Text('Nulo')
-                  : Image.network(widget.data['images'][0])),
-        ),
+            padding: EdgeInsets.only(
+              right: 16,
+              left: 16,
+            ),
+            child: ClipRRect(
+                //height: 100,
+                //width: MediaQuery.of(context).size.width,
+                borderRadius: BorderRadius.circular(16),
+                child: widget.data['images'] == null
+                    ? Text('Nulo')
+                    : Stack(alignment: Alignment.topRight, children: [
+                        Container(
+                            alignment: Alignment.center,
+                            height: 300,
+                            width: 300,
+                            child: PageView.builder(
+                                itemBuilder: (context, i) => Image.network(
+                                      _images[i],
+                                      fit: BoxFit.cover,
+                                    ),
+                                itemCount: _images.length,
+                                onPageChanged: (i) {
+                                  setState(() {
+                                    _page = i + 1;
+                                  });
+                                },
+                                scrollDirection: Axis.horizontal)),
+                        _images.isNotEmpty
+                            ? Padding(
+                                padding: EdgeInsets.all(10),
+                                child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Theme.of(context).primaryColor,
+                                        borderRadius:
+                                            BorderRadius.circular(20)),
+                                    child: Text(
+                                      '  $_page/${_images.length}  ',
+                                      style: TextStyle(color: Colors.white),
+                                    )),
+                              )
+                            : Text(''),
+                      ]))),
 
         //SizedBox(height: 10,),
         // Likes comment

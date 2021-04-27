@@ -25,51 +25,42 @@ class UserDetailView extends StatelessWidget {
       body: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
-            leading: (IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context))),
-            actions: [
-              _myProfile ? Text('') : _followButton(),
-            ],
-            backgroundColor: Color(0xffc4c7ce),
-            pinned: true,
-            expandedHeight: MediaQuery.of(context).size.width,
-            title: Text('@${profileOwner.username}'),
-            flexibleSpace: FlexibleSpaceBar(
-              //titlePadding: EdgeInsets.all(12),
-              title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(profileOwner.name,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16)),
-                    _myProfile
-                        ? Padding(
-                            padding: EdgeInsets.only(right: 10),
-                            child: FloatingActionButton(
-                                mini: true,
-                                child: Icon(Icons.camera_alt_outlined,
-                                    color: Colors.white),
-                                onPressed: () =>
-                                    _db.setProfilePic(ImageSource.gallery)),
-                          )
-                        : Text('')
-                  ]),
-              background: profileOwner.profilePic != null
-                  ? Container(
-                      child: Image.network(profileOwner.profilePic,
-                          fit: BoxFit.cover))
-                  : Center(
-                      child: Text(
-                        "Subir Imagen",
-                        style: TextStyle(
-                          color: Color(0xffe4e4e4),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-            ),
-          ),
+              leading: (IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(context))),
+              actions: [
+                _myProfile ? Text('') : _followButton(),
+              ],
+              backgroundColor: Color(0xffc4c7ce),
+              pinned: true,
+              expandedHeight: MediaQuery.of(context).size.width,
+              title: Text('@${profileOwner.username}'),
+              flexibleSpace: FlexibleSpaceBar(
+                  //titlePadding: EdgeInsets.all(12),
+                  title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(profileOwner.name,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        _myProfile
+                            ? Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: FloatingActionButton(
+                                    mini: true,
+                                    child: Icon(Icons.camera_alt_outlined,
+                                        color: Colors.white),
+                                    onPressed: () =>
+                                        _db.setProfilePic(ImageSource.gallery)),
+                              )
+                            : Text('')
+                      ]),
+                  background: profileOwner.profilePic != ''
+                      ? Container(
+                          child: Image.network(profileOwner.profilePic,
+                              fit: BoxFit.cover))
+                      : Icon(Icons.person_outline,
+                          color: Colors.white30, size: 200))),
           SliverList(
             delegate: SliverChildListDelegate([
               Padding(
