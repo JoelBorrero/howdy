@@ -75,7 +75,8 @@ Widget _drawer(BuildContext context) {
                       shape: BoxShape.circle,
                       image: DecorationImage(
                           fit: BoxFit.fill,
-                          image: NetworkImage(_user?.profilePic)))),
+                          image: NetworkImage(_user?.profilePic ??
+                              "https://cdn140.picsart.com/315324509038201.jpg?type=webp&to=min&r=640")))),
         ),
         accountName: Text('${_user?.name}'),
         accountEmail: Text('@${_user?.username}')),
@@ -99,7 +100,11 @@ Widget _drawer(BuildContext context) {
     ListTile(
       leading: Icon(Icons.search, color: Colors.grey),
       title: Text('Descubrir'),
-      onTap: () {},
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => _search()));
+      },
     ),
     ListTile(
       leading: Icon(Icons.edit_outlined, color: Colors.grey),
@@ -148,7 +153,6 @@ Widget _postList() {
   return StreamBuilder(
       stream: db.postsCollection.snapshots(),
       builder: (context, snapshot) {
-        print(snapshot.data.docs.length);
         return snapshot.hasData
             ? snapshot.data.docs.length > 0
                 ? _postsList(context, snapshot.data.docs)

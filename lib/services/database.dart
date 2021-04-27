@@ -36,9 +36,13 @@ class DatabaseService {
   Future addNewPost(List<File> images, String footer) async {
     List _paths = [];
     await uploadImages(images, _paths);
-    return await postsCollection
-        .doc()
-        .set({'author': uid, 'images': _paths, 'footer': footer});
+    return await postsCollection.doc().set({
+      'author': uid,
+      'comments': [],
+      'footer': footer,
+      'images': _paths,
+      'likes': []
+    });
   }
 
   Future uploadImages(List<File> images, List paths) async {
