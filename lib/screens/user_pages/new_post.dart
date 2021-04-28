@@ -66,7 +66,7 @@ class _NewPostState extends State<NewPost> {
                                       color: Theme.of(context).primaryColor,
                                       borderRadius: BorderRadius.circular(20)),
                                   child: Text('  $_page/${_images.length}  ',
-                                      style: TextStyle(color: Colors.white))))
+                                      style: TextStyle(color: Colors.white)))),
                         ])
                       : Container(
                           alignment: Alignment.center,
@@ -80,14 +80,16 @@ class _NewPostState extends State<NewPost> {
                         IconButton(
                             icon: Icon(Icons.image),
                             onPressed: () async {
-                              await chooseImage(ImageSource.gallery,
+                              await chooseImage(context, ImageSource.gallery,
                                   images: _images);
                               setState(() {});
                             }),
                         IconButton(
                             icon: Icon(Icons.camera),
-                            onPressed: () => chooseImage(ImageSource.camera,
-                                images: _images))
+                            onPressed: () async {
+                              await chooseImage(context, ImageSource.camera,
+                                  images: _images);
+                            })
                       ]),
                   TextField(
                       controller: _footerController,
@@ -96,8 +98,9 @@ class _NewPostState extends State<NewPost> {
                   Text(_error,
                       style: TextStyle(color: Colors.red),
                       textAlign: TextAlign.center),
-                  ElevatedButton(
-                      child: Text('Publicar'),
+                  bigButton(
+                      context: context,
+                      text: 'Publicar',
                       onPressed: () {
                         if (_images.isNotEmpty) {
                           if (_footerController.text.isNotEmpty) {

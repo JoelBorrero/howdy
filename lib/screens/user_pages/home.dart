@@ -1,19 +1,14 @@
-import 'dart:io';
-import 'package:howdy/screens/user_pages/new_post.dart';
-import 'package:howdy/services/auth.dart';
-import 'package:howdy/shared/functions.dart';
-
 import 'user_profile.dart';
 import 'package:flutter/material.dart';
+import 'package:howdy/services/auth.dart';
 import 'package:howdy/widgets/loading.dart';
 import 'package:howdy/models/user_info.dart';
 import 'package:howdy/services/database.dart';
-import 'package:howdy/widgets/constants.dart';
 import 'package:howdy/widgets/post_feed.dart';
 import 'package:howdy/widgets/user_card.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:howdy/screens/user_pages/new_post.dart';
 
 PersonalInfo _user;
 User _fbUser = FirebaseAuth.instance.currentUser;
@@ -120,7 +115,9 @@ Widget _drawer(BuildContext context) {
     ListTile(
       leading: Icon(Icons.settings_outlined, color: Colors.grey),
       title: Text('Configuración'),
-      onTap: () {},
+      onTap: () {
+        Navigator.pop(context);
+      },
     ),
     ListTile(
       leading: Icon(Icons.logout, color: Colors.grey),

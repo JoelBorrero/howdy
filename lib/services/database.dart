@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:howdy/models/user_info.dart';
 import 'package:howdy/shared/functions.dart';
 import 'package:image_picker/image_picker.dart';
@@ -46,7 +47,6 @@ class DatabaseService {
   }
 
   Future uploadImages(List<File> images, List paths) async {
-    print('${images.length} imagenes');
     firebase_storage.Reference ref;
     for (var img in images) {
       ref = firebase_storage.FirebaseStorage.instance
@@ -61,10 +61,10 @@ class DatabaseService {
     }
   }
 
-  Future setProfilePic(ImageSource source) async {
-    PickedFile _image = await chooseImage(source);
+  Future setProfilePic(BuildContext context, ImageSource source) async {
+    File _image = await chooseImage(context, source);
     List _path = [];
-    await uploadImages([File(_image.path)], _path);
+    await uploadImages([_image], _path);
     return await usersCollection.doc(uid).update({'profilePic': _path.first});
   }
 

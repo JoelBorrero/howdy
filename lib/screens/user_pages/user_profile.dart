@@ -14,13 +14,19 @@ bool profilePicture = true,
 String _uid = FirebaseAuth.instance.currentUser.uid;
 DatabaseService _db = DatabaseService(uid: _uid);
 
-class UserDetailView extends StatelessWidget {
+class UserDetailView extends StatefulWidget {
   final PersonalInfo profileOwner;
   UserDetailView({this.profileOwner});
+
+  @override
+  _UserDetailViewState createState() => _UserDetailViewState();
+}
+
+class _UserDetailViewState extends State<UserDetailView> {
   @override
   Widget build(BuildContext context) {
-    print(profileOwner.profilePic);
-    _myProfile = _uid == profileOwner.reference.id; //Temporal xD
+    print(widget.profileOwner.profilePic);
+    _myProfile = _uid == widget.profileOwner.reference.id; //Temporal xD
     return Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[
@@ -34,13 +40,13 @@ class UserDetailView extends StatelessWidget {
               backgroundColor: Color(0xffc4c7ce),
               pinned: true,
               expandedHeight: MediaQuery.of(context).size.width,
-              title: Text('@${profileOwner.username}'),
+              title: Text('@${widget.profileOwner.username}'),
               flexibleSpace: FlexibleSpaceBar(
                   //titlePadding: EdgeInsets.all(12),
                   title: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(profileOwner.name,
+                        Text(widget.profileOwner.name,
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16)),
                         _myProfile
@@ -50,14 +56,17 @@ class UserDetailView extends StatelessWidget {
                                     mini: true,
                                     child: Icon(Icons.camera_alt_outlined,
                                         color: Colors.white),
-                                    onPressed: () =>
-                                        _db.setProfilePic(ImageSource.gallery)),
+                                    onPressed: () async {
+                                      await _db.setProfilePic(
+                                          context, ImageSource.gallery);
+                                      setState(() {});
+                                    }),
                               )
                             : Text('')
                       ]),
-                  background: profileOwner.profilePic != ''
+                  background: widget.profileOwner.profilePic != ''
                       ? Container(
-                          child: Image.network(profileOwner.profilePic,
+                          child: Image.network(widget.profileOwner.profilePic,
                               fit: BoxFit.cover))
                       : Icon(Icons.person_outline,
                           color: Colors.white30, size: 200))),
@@ -84,7 +93,7 @@ class UserDetailView extends StatelessWidget {
                       ],
                     ),
                     Align(
-                      child: Text(profileOwner.biography),
+                      child: Text(widget.profileOwner.biography),
                       alignment: Alignment.bottomLeft,
                     ),
                     SizedBox(
@@ -181,7 +190,7 @@ class UserDetailView extends StatelessWidget {
         padding: const EdgeInsets.all(12.0),
         child: TextButton(
           onPressed: () => print(
-              '_myProfile\n${FirebaseAuth.instance.currentUser.uid} == ${profileOwner.reference.id}'),
+              '_myProfile\n${FirebaseAuth.instance.currentUser.uid} == ${widget.profileOwner.reference.id}'),
           child: Text(
             "Seguir",
             style: TextStyle(
@@ -196,6 +205,7 @@ class UserDetailView extends StatelessWidget {
           ),
         ),
       );
+
   Widget _textButton({String text, Function() onPressed}) => TextButton(
       onPressed: onPressed,
       child: Text(
