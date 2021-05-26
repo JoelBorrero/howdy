@@ -60,7 +60,14 @@ class _PostState extends State<Post> {
                   TextButton(
                       onPressed: () async {
                         await database.follow(widget.data["author"]);
-                        setState(() {});
+                        setState(() {
+                          userPersonalInfo.friends
+                                  .contains(widget.data["author"])
+                              ? userPersonalInfo.friends
+                                  .remove(widget.data["author"])
+                              : userPersonalInfo.friends
+                                  .add(widget.data["author"]);
+                        });
                       },
                       child: Text(
                           userPersonalInfo.friends

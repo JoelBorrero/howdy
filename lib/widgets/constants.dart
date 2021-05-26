@@ -70,16 +70,20 @@ Widget chipsList({param}) => StreamBuilder<QuerySnapshot>(
           : Text('Vacío');
     });
 
-Widget getChip(DocumentSnapshot chip, {list}) {
-  bool _selected = list != null
-      ? list.contains(chip.id)
-      : userPersonalInfo.interest.contains(chip.id);
+Widget getChip(DocumentSnapshot chip, {List list}) {
+  bool _watching = false;
+  if (list == null) {
+    list = [chip.id];
+    _watching = true;
+  }
+  bool _selected = list.contains(chip.id);
   return InputChip(
-      onPressed: () => list != null
-          ? list.contains(chip.id)
-              ? list.remove(chip.id)
-              : list.add(chip.id)
-          : database.toggleTag(chip.id),
+      onPressed: () {
+        // if (_watching) database.toggleTag(chip.id);
+        list.contains(chip.id) ? list.remove(chip.id) : list.add(chip.id);
+        _selected = list.contains(chip.id);
+        print(list);
+      },
       selected: _selected,
       selectedColor: Color(0xff9097fd),
       padding: EdgeInsets.all(12),
