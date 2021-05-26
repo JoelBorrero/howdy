@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:howdy/widgets/loading.dart';
 import 'package:howdy/widgets/constants.dart';
 import 'package:howdy/screens/user_pages/home.dart';
-import 'package:howdy/widgets/interest_widget.dart';
-import 'package:howdy/widgets/loading.dart';
 
 import 'my_groups.dart';
 
@@ -21,6 +20,7 @@ class NewGroup extends StatefulWidget {
 class NewGroupState extends State<NewGroup> {
   @override
   Widget build(BuildContext context) {
+    List<String> _tags = [];
     return _loading
         ? Loading()
         : Scaffold(
@@ -52,11 +52,8 @@ class NewGroupState extends State<NewGroup> {
                               controller: _description,
                               decoration: textInputDecoration.copyWith(
                                   labelText: 'Descripción para el grupo')),
-                          Row(children: [
-                            titleText(text: "Match Info"),
-                            TextButton(onPressed: () {}, child: Text('editar'))
-                          ]),
-                          UserInterestWidget()
+                          Row(children: [titleText(text: "Match Info")]),
+                          chipsList(param: _tags)
                         ]))));
   }
 

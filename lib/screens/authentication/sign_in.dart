@@ -76,8 +76,9 @@ class _SignInState extends State<SignIn> {
                                 setState(() => _password = val);
                               })),
                       Text(_error, style: TextStyle(color: Colors.red[900])),
-                      ElevatedButton(
-                          child: Text('Continuar'),
+                      bigButton(
+                          context: context,
+                          text: 'Continuar',
                           onPressed: () async {
                             if (_formKey.currentState.validate()) {
                               setState(() => _loading = true);

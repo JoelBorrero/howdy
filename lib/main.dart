@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
 }
 
 ThemeData _darkTheme() => ThemeData(
-    accentColor: Colors.deepPurple,
+    accentColor: Color(0xff9097fd),
     cardColor: Colors.deepPurple,
     primaryColor: Colors.deepPurple,
     canvasColor: Colors.black54,
@@ -55,6 +55,14 @@ ThemeData _darkTheme() => ThemeData(
     scaffoldBackgroundColor: Colors.black87);
 
 ThemeData _normalTheme() => ThemeData(
+    appBarTheme: AppBarTheme(
+        backgroundColor: Colors.white,
+        textTheme: TextTheme(
+            headline6: TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontWeight: FontWeight.w500)),
+        iconTheme: IconThemeData(color: Colors.black)),
     accentColor: Color(0xff9097fd),
     cardColor: Color(0xff9097fd),
     primaryColor: Colors.deepPurple,

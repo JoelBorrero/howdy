@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:howdy/widgets/constants.dart';
 import 'package:howdy/widgets/loading.dart';
@@ -63,4 +64,8 @@ Future<File> cropImage(BuildContext context, File image) async {
               // )
               )));
   return output;
+}
+
+Color randomColor() {
+  return Colors.primaries[Random().nextInt(Colors.primaries.length)];
 }

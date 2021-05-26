@@ -75,8 +75,9 @@ class _RegisterState extends State<Register> {
                         decoration: textInputDecoration.copyWith(
                             labelText: 'Teléfono', icon: Icon(Icons.phone)),
                         keyboardType: TextInputType.phone),
-                    ElevatedButton(
-                        child: Text('Crear cuenta'),
+                    bigButton(
+                        context: context,
+                        text: 'Crear cuenta',
                         onPressed: () async {
                           if (_formKey.currentState.validate()) {
                             setState(() => _loading = true);

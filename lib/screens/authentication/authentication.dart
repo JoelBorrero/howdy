@@ -1,3 +1,5 @@
+import 'package:howdy/widgets/constants.dart';
+
 import 'sign_in.dart';
 import 'register.dart';
 import 'package:flutter/material.dart';
@@ -80,27 +82,16 @@ class _AuthenticationState extends State<Authentication> {
                     fontSize: 72)),
             Text('Encuentra a miles de personas.\nConecta con ellas',
                 style: TextStyle(fontSize: 16), textAlign: TextAlign.center),
-            Container(
-              width: MediaQuery.of(context).size.width,
-              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-              child: ElevatedButton(
-                  onPressed: () => goToPage(2, horizontal: false),
-                  child: Text('\nCrear una cuenta\n'),
-                  style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(50)))),
-            ),
-            Container(
-                width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-                child: ElevatedButton(
-                    onPressed: () => goToPage(1, horizontal: false),
-                    child: Text('\nYa tengo una cuenta\n',
-                        style: TextStyle(color: Colors.black54)),
-                    style: ElevatedButton.styleFrom(
-                        primary: Colors.grey[200],
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(50)))))
+            bigButton(
+                context: context,
+                onPressed: () => goToPage(2, horizontal: false),
+                text: 'Crear una cuenta'),
+            bigButton(
+                context: context,
+                color: Colors.grey[200],
+                onPressed: () => goToPage(1, horizontal: false),
+                text: 'Ya tengo una cuenta',
+                textColor: Colors.black54),
           ])
         ]),
         SignIn(),

@@ -1,10 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:howdy/screens/user_pages/home.dart';
-import 'package:howdy/widgets/constants.dart';
 import 'package:howdy/widgets/groups.dart';
-import 'package:howdy/widgets/interest_widget.dart';
 import 'package:howdy/widgets/loading.dart';
+import 'package:howdy/widgets/constants.dart';
+import 'package:howdy/screens/user_pages/home.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MyInterest extends StatefulWidget {
   @override
@@ -23,7 +22,7 @@ class _MyInterestState extends State<MyInterest> {
                 titleText(text: 'Populares', size: 32),
                 TextButton(child: Text("Ver más"), onPressed: () {})
               ]),
-              chipsList(['list', 'list', 'lisdpasdpoaskdt', 'listadasdad'])
+              chipsList()
             ])));
   }
 }

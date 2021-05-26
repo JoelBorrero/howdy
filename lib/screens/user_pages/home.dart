@@ -1,3 +1,6 @@
+import 'package:howdy/screens/user_pages/my_groups.dart';
+import 'package:howdy/screens/user_pages/new_group.dart';
+
 import 'user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:howdy/services/auth.dart';
@@ -10,14 +13,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:howdy/screens/user_pages/new_post.dart';
 
-PersonalInfo _user;
-User _fbUser = FirebaseAuth.instance.currentUser;
-DatabaseService db = DatabaseService(uid: _fbUser.uid);
+PersonalInfo userPersonalInfo;
+User firebaseUser = FirebaseAuth.instance.currentUser;
+DatabaseService database = DatabaseService(uid: firebaseUser.uid);
 AuthService _auth = AuthService();
 
 void _load() async {
-  _fbUser = FirebaseAuth.instance.currentUser;
-  _user = await DatabaseService().getPersonalInfo(_fbUser.uid);
+  firebaseUser = FirebaseAuth.instance.currentUser;
+  database = DatabaseService(uid: firebaseUser.uid);
+  userPersonalInfo = await DatabaseService().getPersonalInfo(firebaseUser.uid);
 }
 
 class Home extends StatefulWidget {
@@ -34,25 +38,35 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-            actions: [
-              IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => _search())))
-            ],
-            backgroundColor: Colors.white,
-            centerTitle: true,
-            iconTheme: IconThemeData(color: Colors.black),
-            title: Text('Howdy',
-                style: TextStyle(color: Theme.of(context).accentColor))),
-        body: _postList(),
-        drawer: _drawer(context),
-        floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.post_add),
-            onPressed: () => Navigator.push(
-                context, MaterialPageRoute(builder: (context) => NewPost()))));
+    return FutureBuilder<PersonalInfo>(
+        future: database.getPersonalInfo(firebaseUser.uid),
+        builder: (context, AsyncSnapshot<PersonalInfo> userSnapshot) {
+          return userSnapshot.hasError
+              ? Center(child: Text('Error interno'))
+              : Scaffold(
+                  appBar: AppBar(
+                      actions: [
+                        IconButton(
+                            icon: Icon(Icons.search),
+                            onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => _search())))
+                      ],
+                      backgroundColor: Colors.white,
+                      centerTitle: true,
+                      iconTheme: IconThemeData(color: Colors.black),
+                      title: Text('Howdy',
+                          style:
+                              TextStyle(color: Theme.of(context).accentColor))),
+                  body: _postList(),
+                  drawer: _drawer(context),
+                  floatingActionButton: FloatingActionButton(
+                      child: Icon(Icons.post_add),
+                      onPressed: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => NewPost()))),
+                );
+        });
   }
 }
 
@@ -61,8 +75,8 @@ Widget _drawer(BuildContext context) {
       child: Column(children: [
     UserAccountsDrawerHeader(
         currentAccountPicture: CircleAvatar(
-          child: _user?.profilePic == ''
-              ? Text(_user.name.substring(0, 1))
+          child: userPersonalInfo?.profilePic == ''
+              ? Text(userPersonalInfo.name.substring(0, 1))
               : Container(
                   height: 50,
                   width: 50,
@@ -70,76 +84,68 @@ Widget _drawer(BuildContext context) {
                       shape: BoxShape.circle,
                       image: DecorationImage(
                           fit: BoxFit.fill,
-                          image: NetworkImage(_user?.profilePic ??
+                          image: NetworkImage(userPersonalInfo?.profilePic ??
                               "https://cdn140.picsart.com/315324509038201.jpg?type=webp&to=min&r=640")))),
         ),
-        accountName: Text('${_user?.name}'),
-        accountEmail: Text('@${_user?.username}')),
-    ListTile(
-      leading: Icon(Icons.people_alt_outlined, color: Colors.grey),
-      title: Text('Crear grupo'),
-      onTap: () {
-        Navigator.pop(context);
-      },
-    ),
-    ListTile(
-      leading: Icon(Icons.person_outline, color: Colors.grey),
-      title: Text('Amigos y grupos'),
-      onTap: () {},
-    ),
-    ListTile(
-      leading: Icon(Icons.message_outlined, color: Colors.grey),
-      title: Text('Chats directos'),
-      onTap: () {},
-    ),
-    ListTile(
-      leading: Icon(Icons.search, color: Colors.grey),
-      title: Text('Descubrir'),
-      onTap: () {
-        Navigator.pop(context);
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => _search()));
-      },
-    ),
-    ListTile(
-      leading: Icon(Icons.edit_outlined, color: Colors.grey),
-      title: Text('Editar perfil'),
-      onTap: () {
-        Navigator.pop(context);
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => UserDetailView(profileOwner: _user)));
-      },
-    ),
-    ListTile(
-      leading: Icon(Icons.settings_outlined, color: Colors.grey),
-      title: Text('Configuración'),
-      onTap: () {
-        Navigator.pop(context);
-      },
-    ),
-    ListTile(
-      leading: Icon(Icons.logout, color: Colors.grey),
-      title: Text('Cerrar sesión'),
-      onTap: () => _auth.signOut(),
-    ),
+        accountName: Text('${userPersonalInfo?.name}'),
+        accountEmail: Text('@${userPersonalInfo?.username}')),
+    _listTile(
+        context: context,
+        icon: Icons.people_alt_outlined,
+        text: 'Crear grupo',
+        next: NewGroup()),
+    _listTile(
+        context: context,
+        icon: Icons.group_outlined,
+        text: 'Amigos y grupos',
+        next: MyGroups()),
+    _listTile(
+        context: context,
+        icon: Icons.message_outlined,
+        text: 'Chats directos',
+        next: _search()),
+    _listTile(
+        context: context,
+        icon: Icons.search,
+        text: 'Descubrir',
+        next: _search()),
+    _listTile(
+        context: context,
+        icon: Icons.edit_outlined,
+        text: 'Editar perfil',
+        next: UserDetailView(profileOwner: userPersonalInfo)),
+    _listTile(
+        context: context,
+        icon: Icons.settings,
+        text: "Configuración",
+        next: UserDetailView(profileOwner: userPersonalInfo)),
+    _listTile(context: context, icon: Icons.logout, text: "Cerrar sesión")
   ]));
+}
+
+Widget _listTile(
+    {@required BuildContext context,
+    @required IconData icon,
+    @required String text,
+    Widget next}) {
+  return ListTile(
+      leading: Icon(icon, color: Colors.grey),
+      title: Text(text),
+      onTap: next != null
+          ? () {
+              Navigator.pop(context);
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => next));
+            }
+          : () => _auth.signOut());
 }
 
 Widget _search() {
   return StreamBuilder(
-      stream: db.usersCollection.snapshots(),
+      stream: database.getUsers(),
       builder: (context, snapshot) {
         return Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.white,
-              title: Text(
-                'Descubrir',
-                style: TextStyle(color: Colors.black),
-              ),
-              iconTheme: IconThemeData(color: Colors.black),
-            ),
+            appBar: AppBar(title: Text('Descubrir')),
             body: snapshot.hasData
                 ? _usersList(context, snapshot.data.docs)
                 : Center(child: Text('Cargando...')));
@@ -148,7 +154,7 @@ Widget _search() {
 
 Widget _postList() {
   return StreamBuilder(
-      stream: db.postsCollection.snapshots(),
+      stream: database.getPosts(),
       builder: (context, snapshot) {
         return snapshot.hasData
             ? snapshot.data.docs.length > 0

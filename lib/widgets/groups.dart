@@ -1,12 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:howdy/shared/functions.dart';
 import 'package:howdy/screens/user_pages/home.dart';
-import 'constants.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GroupTile extends StatelessWidget {
   final DocumentSnapshot data;
+  final Color _color = randomColor();
   GroupTile({this.data});
-  Color _color = randomColor();
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(

@@ -104,7 +104,7 @@ class _NewPostState extends State<NewPost> {
                       onPressed: () {
                         if (_images.isNotEmpty) {
                           if (_footerController.text.isNotEmpty) {
-                            db.addNewPost(_images, _footerController.text);
+                            database.addNewPost(_images, _footerController.text);
                             Navigator.pop(context);
                             _footerController.clear();
                           } else {
